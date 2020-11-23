@@ -1,4 +1,5 @@
 import csv
+import math
 
 files = ['dmoz_domain_category.csv', 'parsed-new.csv', 'parsed-subdomain.csv']
 
@@ -67,19 +68,22 @@ swedish_urls = list(set(swedish_webs))
 norwegian_urls = list(set(norwegian_webs))
 
 # we crop the length of the list to be a cleaner number 
-dutch_urls = dutch_urls[0:128000]
+
+subset_length = math.floor(len(dutch_urls)/8)
+
+dutch_urls = dutch_urls[0:(subset_length*8)]
 
 # now we only get 16000 entries of each language
 
 non_dutch_urls = []
-non_dutch_urls.extend(german_urls[0:16000])
-non_dutch_urls.extend(spanish_urls[0:16000])
-non_dutch_urls.extend(us_urls[0:16000])
-non_dutch_urls.extend(uk_urls[0:16000])
-non_dutch_urls.extend(polish_urls[0:16000])
-non_dutch_urls.extend(french_urls[0:16000])
-non_dutch_urls.extend(swedish_urls[0:16000])
-non_dutch_urls.extend(norwegian_urls[0:16000])
+non_dutch_urls.extend(german_urls[0:subset_length])
+non_dutch_urls.extend(spanish_urls[0:subset_length])
+non_dutch_urls.extend(us_urls[0:subset_length])
+non_dutch_urls.extend(uk_urls[0:subset_length])
+non_dutch_urls.extend(polish_urls[0:subset_length])
+non_dutch_urls.extend(french_urls[0:subset_length])
+non_dutch_urls.extend(swedish_urls[0:subset_length])
+non_dutch_urls.extend(norwegian_urls[0:subset_length])
 
 with open('train_data.txt', 'w') as txt_file:
   
