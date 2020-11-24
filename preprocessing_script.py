@@ -30,8 +30,10 @@ for file in files:
       else:
         url = row[0]
       
+      url = 'http://' + url
+      
       if 'nederlands' in cat.split('/'):
-        dutch_webs.append(url)  
+        dutch_webs.append(url)
       
       elif 'deutsch' in cat.split('/'):
         german_webs.append(url)  
