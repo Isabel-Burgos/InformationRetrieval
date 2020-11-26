@@ -113,9 +113,9 @@
 /*     */   
 /*     */   public ParseResult filter(Content content, ParseResult parseResult, HTMLMetaTags metaTags, DocumentFragment doc) {
 /* 161 */     Parse parse = parseResult.get(content.getUrl());
-/* 163 */     String url = content.getBaseUrl();
+/* 163 */     String url = content.getBaseUrl(); // this is the url of the page 
 /* 164 */     ArrayList<Outlink> tempOutlinks = new ArrayList<>();
-/* 165 */     String text = parse.getText();
+/* 165 */     String text = parse.getText(); //this is the content of the page
 /* 167 */     if (!filterParse(text)) {
 /* 170 */       LOG.info("ParseFilter: NaiveBayes: Page found irrelevant:: " + url);
 /* 171 */       LOG.info("Checking outlinks");

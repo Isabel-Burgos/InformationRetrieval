@@ -53,9 +53,9 @@
 /*  89 */     FileSystem fs = FileSystem.get(configuration);
 /*  92 */     BufferedReader bufferedReader = new BufferedReader(configuration.getConfResourceAsReader(filepath));
 /*  94 */     while ((line = bufferedReader.readLine()) != null) {
-/*  96 */       target = line.split("\t")[0];
-/*  98 */       line = replacefirstoccuranceof(target + "\t", line);
-/* 100 */       linearray = line.replaceAll("[^a-zA-Z ]", "").toLowerCase().split(" ");
+/*  96 */       target = line.split("\t")[0]; //get the number of the line
+/*  98 */       line = replacefirstoccuranceof(target + "\t", line); //get rid of the number and tab
+/* 100 */       linearray = line.replaceAll("[^a-zA-Z ]", "").toLowerCase().split(" "); //get rid of non-alphabetical characters and split words
 /* 103 */       if (target.equals("0")) {
 /* 105 */         numof_ir++;
 /* 106 */         numwords_ir += linearray.length;
@@ -63,7 +63,7 @@
 /* 108 */           uniquewords.add(linearray[j]);
 /* 109 */           updateHashMap(wordfreq_ir, linearray[j]);
 /*     */         } 
-/*     */         continue;
+/*     */         continue; // breaks one iteration of the loop
 /*     */       } 
 /* 113 */       numof_r++;
 /* 114 */       numwords_r += linearray.length;
@@ -72,6 +72,7 @@
 /* 117 */         updateHashMap(wordfreq_r, linearray[i]);
 /*     */       } 
 /*     */     } 
+							// This writes in a file the preprocessed data
 /* 126 */     Path path = new Path("naivebayes-model");
 /* 128 */     Writer writer = new BufferedWriter(new OutputStreamWriter((OutputStream)fs.create(path, true)));
 /* 131 */     writer.write(String.valueOf(uniquewords.size()) + "\n");
