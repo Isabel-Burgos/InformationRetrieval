@@ -1,5 +1,5 @@
 import csv
-import pandas as pd
+import re # regular expressions
 import numpy as np
 
 from sklearn import metrics
@@ -55,6 +55,39 @@ class Naive_Bayes():
     #def test(self):
 
         #return accuracy?
+
+# TODO: somewhere we have to keep track of the likelihood
+# Think this would just be the count for each token given Dutch/non Dutch
+
+class URLParser():
+    '''
+    The implementation is based on the description on page 178 in the Baykan paper.
+    '''
+
+    def accepted(token):
+        '''
+        Returns true if the token is accepted.
+        It is accepted if it has a min length of 1 and is not one of the
+        special words listed below.
+        '''
+        special_words = ['www', 'index', 'html', 'htm', 'http', 'https']
+
+        return len(token) > 1 and not token in special_words
+
+
+    def get_features(url):
+        '''
+        Converts the url into a list of tokens, where each token is a word
+        feature.
+        This can be adapted to trigram features if we want.
+        '''
+
+        # this regex will split txt at any non letter character or at space (\s)
+        # if txt = "The/rain .in Spain" x will be ['The', 'rain', '', 'in', 'Spain']
+        # x = re.split("[^a-zA-Z]|\s", txt)
+
+        features = re.split("[^a-zA-Z]|\s", txt)
+        return [token if accepted(token) for token in features]
 
 reader = Read_Data('train_data.txt')
 X_train, y_train, X_test, y_test = reader.get_train_and_test()
