@@ -2,9 +2,11 @@ import csv
 import re # regular expressions
 import numpy as np
 
-from sklearn import metrics
-from sklearn.naive_bayes import GaussianNB
 from sklearn.model_selection import train_test_split
+from sklearn.pipeline import Pipeline
+from sklearn.naive_bayes import MultinomialNB
+from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.metrics import confusion_matrix, classification_report
 
 class Read_Data():
     '''
@@ -31,14 +33,13 @@ class Read_Data():
         # associated to the correct label)
         # make separate class for this
 
-        # TODO: make sure train and test set are balanced (50/50 dutch/non-dutch)
-        train, test = train_test_split(self.data, train_size = 0.8)
+        train, test = train_test_split(self.data, train_size = 0.8, random_state=42)
         # labels are column 0
         X_train = train[:,1]
         y_train = train[:,0]
         X_test = test[:,1]
         y_test = test[:,0]
-
+           
         return X_train, y_train, X_test, y_test
 
 
@@ -90,9 +91,34 @@ class URLParser():
         features = re.split("[^a-zA-Z]|\s", url)
         return [token for token in features if self.__accepted(token)]
 
+# create own analyzer to tokenize a URL
+def char_trigrams(text):
+    words = re.findall(r'(?!www|index|html|htm|http|https)([a-zA-Z]{2,})', text)
+    for w in words:
+        yield w
+        for i in range(len(w) - 3):
+            yield w[i:i+3]
+
+# create train and test dataset
 reader = Read_Data('train_data.txt')
+
 X_train, y_train, X_test, y_test = reader.get_train_and_test()
 
+
+count_vector = CountVectorizer(analyzer=char_trigrams)
+count_vector.fit(X_test)
+
+pipeline = Pipeline([
+    ('vectorizer', count_vector),
+    ('model', MultinomialNB())
+])
+
+#print(count_vector.vocabulary_)
+pipeline.fit(X_train, y_train)
+y_pred = pipeline.predict(X_test)
+
+print(confusion_matrix(y_test,y_pred))
+print(classification_report(y_test,y_pred))
 
 
 
@@ -108,7 +134,4 @@ X_train, y_train, X_test, y_test = reader.get_train_and_test()
 #     print(url)
 #     print("parsed url:\n", parser.get_features(url))
 
-# -----------------------------------------------------------------------------#
-#Just some useful links
-#https://dzone.com/articles/naive-bayes-tutorial-naive-bayes-classifier-in-pyt
-#https://scikit-learn.org/stable/modules/generated/sklearn.naive_bayes.GaussianNB.html
+
