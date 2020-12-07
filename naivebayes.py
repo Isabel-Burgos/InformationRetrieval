@@ -64,7 +64,7 @@ class URLParser():
     The implementation is based on the description on page 178 in the Baykan paper.
     '''
 
-    def accepted(token):
+    def __accepted(self, token):
         '''
         Returns true if the token is accepted.
         It is accepted if it has a min length of 1 and is not one of the
@@ -75,24 +75,40 @@ class URLParser():
         return len(token) > 1 and not token in special_words
 
 
-    def get_features(url):
+    def get_features(self, url):
         '''
         Converts the url into a list of tokens, where each token is a word
-        feature.
+        feature. A word does not have any punctuation marks, numbers, or other
+        non-letter characters.
         This can be adapted to trigram features if we want.
         '''
 
-        # this regex will split txt at any non letter character or at space (\s)
+        # this regex will split txt at any non-letter character or at space (\s)
         # if txt = "The/rain .in Spain" x will be ['The', 'rain', '', 'in', 'Spain']
         # x = re.split("[^a-zA-Z]|\s", txt)
 
-        features = re.split("[^a-zA-Z]|\s", txt)
-        return [token if accepted(token) for token in features]
+        features = re.split("[^a-zA-Z]|\s", url)
+        return [token for token in features if self.__accepted(token)]
 
 reader = Read_Data('train_data.txt')
 X_train, y_train, X_test, y_test = reader.get_train_and_test()
 
 
+
+
+# -----------------------------------------------------------------------------#
+# the commented code below can be used to test the functions with a very small .txt file
+
+# reader = Read_Data('tryout.txt')
+# X_train, y_train, X_test, y_test = reader.get_train_and_test()
+#
+# parser = URLParser()
+# for set in reader.get_data():
+#     url = set[1]
+#     print(url)
+#     print("parsed url:\n", parser.get_features(url))
+
+# -----------------------------------------------------------------------------#
 #Just some useful links
 #https://dzone.com/articles/naive-bayes-tutorial-naive-bayes-classifier-in-pyt
 #https://scikit-learn.org/stable/modules/generated/sklearn.naive_bayes.GaussianNB.html
