@@ -7,7 +7,7 @@ from sklearn.naive_bayes import MultinomialNB
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.metrics import confusion_matrix, classification_report
 
-class Read_Data():
+class ReadData():
     '''
     Reads in the data in filename and divides it to a
     train set and a test set.
@@ -32,36 +32,99 @@ class Read_Data():
         y_train = train[:,0]
         X_test = test[:,1]
         y_test = test[:,0]
-           
+
         return X_train, y_train, X_test, y_test
-    
 
-# definition for analyzer to tokenize a URL
-def words_and_char_trigrams(text):
-    words = re.findall(r'(?!www|index|html|htm|http|https)([a-zA-Z]{2,})', text)
-    for w in words:
-        yield w
-        for i in range(len(w) - 3):
-            yield w[i:i+3]
+class URLParser():
+    '''
+    Parses the URL(s) to tokens. Implementation is based on Baykan paper, page 178.
+    '''
 
-# create train and test dataset
-reader = Read_Data('train_data.txt')
-X_train, y_train, X_test, y_test = reader.get_train_and_test()
+    def __init__(self):
+        self.tabu_list = ['www','index','html','htm','http','https']
 
-# create a CountVectorizer which converts the urls to a vector of term counts 
-count_vector = CountVectorizer(analyzer=words_and_char_trigrams)
+    # definition for analyzer to tokenize a URL
+    def words_and_char_trigrams(self, text):
+        '''
+        Splits each URL in text to tokens consisting of letter characters only.
+        '''
 
-# define the pipeline such that the urls will be tokenized and classified
-pipeline = Pipeline([
-    ('vectorizer', count_vector),
-    ('model', MultinomialNB())
-])
+        words = re.findall(r'([a-zA-Z]{2,})', text)
+        for w in words:
+            if not w in self.tabu_list:
+                yield w
 
-# train and test the model
-pipeline.fit(X_train, y_train)
-y_pred = pipeline.predict(X_test)
+            # Add this if we want to split to trigrams
+                #for i in range(len(w) - 3):
+                #    yield w[i:i+3]
 
-# print the evavluation metrics
-print(confusion_matrix(y_test,y_pred))
-print(classification_report(y_test,y_pred))
+class NaiveBayes():
+    '''
+    The naive Bayes is implemented to fit for the purpose of this project.
+    As part of the process, the urls are parsed to tokens which are used
+    when training and predicting.
+    '''
 
+    def train(self):
+        '''
+        Trains the naive Bayes classifier given the whole train_data set.
+        Uses a MultinomialNB to classify the urls.
+        '''
+
+        reader = ReadData('train_data.txt')
+        data = reader.get_data()
+        X = data[:,1]
+        y = data[:,0]
+
+        parser = URLParser()
+        count_vector = CountVectorizer(analyzer=parser.words_and_char_trigrams)
+
+        self.pipeline = Pipeline([
+            ('vectorizer', count_vector),
+            ('model', MultinomialNB())
+        ])
+
+        self.pipeline.fit(X,y)
+
+    def predict(self, url):
+        return self.pipeline.predict(url)
+
+
+# ------------- Code to test if crawling will work ----------- #
+### comment these lines when you want to run crawler
+
+test_url_nd = ['https://www.w3schools.com/python/python_regex.asp']
+test_url_d = ['https://www.ru.nl/opleidingen/masteropleidingen/zoeken-masteropleidingen/']
+
+nb = NaiveBayes()
+nb.train()
+
+pred_nd = nb.predict(test_url_nd)
+pred_d = nb.predict(test_url_d)
+print('non dutch is predicted as:',pred_nd)
+print('dutch is predicted as:',pred_d)
+
+# ----------------- Code to test classifier ------------------ #
+### uncomment lines below if you want to run test
+
+# # create train and test dataset
+# reader = ReadData('train_data.txt')
+# X_train, y_train, X_test, y_test = reader.get_train_and_test()
+#
+# # create a CountVectorizer which converts the urls to a vector of term counts
+# parser = URLParser()
+# count_vector = CountVectorizer(analyzer=parser.words_and_char_trigrams)
+#
+# # define the pipeline such that the urls will be tokenized and classified
+# pipeline = Pipeline([
+#     ('vectorizer', count_vector),
+#     ('model', MultinomialNB())
+# ])
+#
+# # train and test the model
+# pipeline.fit(X_train, y_train)
+# y_pred = pipeline.predict(X_test)
+#
+# # print the evavluation metrics
+# print(confusion_matrix(y_test,y_pred))
+# print(classification_report(y_test,y_pred))
