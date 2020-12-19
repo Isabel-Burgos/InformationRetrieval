@@ -7,6 +7,9 @@ from sklearn.naive_bayes import MultinomialNB
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.metrics import confusion_matrix, classification_report
 
+import matplotlib.pyplot as plt
+from sklearn.metrics import plot_confusion_matrix
+
 class ReadData():
     '''
     Reads in the data in filename and divides it to a
@@ -107,24 +110,25 @@ class NaiveBayes():
 # ----------------- Code to test classifier ------------------ #
 ### uncomment lines below if you want to run test
 
-# # create train and test dataset
-# reader = ReadData('train_data.txt')
-# X_train, y_train, X_test, y_test = reader.get_train_and_test()
-#
-# # create a CountVectorizer which converts the urls to a vector of term counts
-# parser = URLParser()
-# count_vector = CountVectorizer(analyzer=parser.words_and_char_trigrams)
-#
-# # define the pipeline such that the urls will be tokenized and classified
-# pipeline = Pipeline([
-#     ('vectorizer', count_vector),
-#     ('model', MultinomialNB())
-# ])
-#
-# # train and test the model
-# pipeline.fit(X_train, y_train)
-# y_pred = pipeline.predict(X_test)
-#
-# # print the evavluation metrics
-# print(confusion_matrix(y_test,y_pred))
-# print(classification_report(y_test,y_pred))
+# create train and test dataset
+reader = ReadData('train_data.txt')
+X_train, y_train, X_test, y_test = reader.get_train_and_test()
+
+# create a CountVectorizer which converts the urls to a vector of term counts
+parser = URLParser()
+count_vector = CountVectorizer(analyzer=parser.words_and_char_trigrams)
+
+# define the pipeline such that the urls will be tokenized and classified
+pipeline = Pipeline([
+    ('vectorizer', count_vector),
+    ('model', MultinomialNB())
+])
+
+# train and test the model
+pipeline.fit(X_train, y_train)
+y_pred = pipeline.predict(X_test)
+
+# print the evavluation metrics
+print(confusion_matrix(y_test,y_pred))
+print(classification_report(y_test,y_pred))
+plot_confusion_matrix(pipeline, X_test, y_test, cmap=plt.cm.Blues)
